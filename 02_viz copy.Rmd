@@ -77,6 +77,8 @@ scale_color_hue(
   name = "Location", 
   h = c(100, 300))
 ```
+
+
 ```{r}
 weather_df |> 
   ggplot(aes(x = tmin, y = tmax)) + 
@@ -91,4 +93,56 @@ viridis::scale_color_viridis(
   name = "Location", 
   discrete= TRUE
 )
+```
+
+#Themes 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    color = "Location",
+    caption = "Data from the rnoaa package") + 
+viridis::scale_color_viridis(
+  name = "Location", 
+  discrete= TRUE) +
+  theme(legend.position = "bottom")
+
+```
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    color = "Location",
+    caption = "Data from the rnoaa package") + 
+viridis::scale_color_viridis(
+  name = "Location", 
+  discrete= TRUE) +
+  theme_minimal()
+```
+Do legend theme and legend
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    color = "Location",
+    caption = "Data from the rnoaa package") + 
+viridis::scale_color_viridis(
+  name = "Location", 
+  discrete= TRUE) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
 ```
