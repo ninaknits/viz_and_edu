@@ -1,0 +1,207 @@
+---
+title: "Numerical EDA"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(p8105.datasets)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+Load the weather data as well.
+
+```{r}
+data("weather_df")
+```
+
+Now we have everything we need!
+```{r}
+weather_df |>
+  ggplot(aes(x=prcp))+
+  geom_histogram ()
+```
+
+```{r}
+weather_df |>
+  filter (prcp >1000)
+```
+```{r}
+weather_df |> 
+  filter(tmax >= 20, tmax <= 30) |> 
+  ggplot(aes(x = tmax, y = tmin, color = name, shape = name)) + 
+  geom_point()
+```
+
+```{r}
+data ("weather_df")
+
+weather_df= weather_df |>
+  mutate(
+    month=lubridate::floor_date(date, unit= "month")
+  )
+```
+
+Lubridate package helpful for dates and times. Pretty much round down by month.
+
+# `group_by()`
+add some groups!
+```{r}
+weather_df |>
+  group_by(name, month) |>
+  summarize(count=n ())
+```
+The tibble shows us that there are three groups by name. Grouping doesnt change our dataset, but know that its there. Can group and ungroup intentionally. 
+
+```{r}
+weather_df |> 
+  count(name, month)
+```
+
+
+```{r}
+weather_df |> 
+  group_by(month) |>
+  summarize(
+    count= n(),
+    n_days=n_distinct(date)
+  )
+
+```
+DONT DO THIS 
+```{r, eval=FALSE}
+weather_df |> 
+  pull(tmax) |>
+  summary()
+```
+Don't do summary it is very old base r package, seems handy, but what are you going to do with this.
+
+Do this Instead
+```{r}
+weather_df |>
+  group_by(name) |>
+  summarize (
+    mean_tamax= mean(tmax, na.rm= TRUE), 
+    mediant_tmax= median(tmax, na.rm= TRUE),
+    sd_prcp= sd(prcp, na.rm= TRUE)
+  )
+```
+You can summarize however you want to
+```{r}
+weather_df |>
+  group_by(name) |>
+  summarize (
+    mean_tamax= mean(tmax, na.rm= TRUE), 
+    mediant_tmax= median(tmax, na.rm= TRUE),
+    sd_prcp= sd(prcp, na.rm= TRUE),
+    q95_prcp= quantile (prcp, 0.95, na.rm= TRUE)
+  )
+```
+
+```{r}
+weather_df |>
+  group_by(name, month) |>
+  summarise (
+    mean_tmax= mean(tmax, na.rm= TRUE), 
+  ) |>
+  pivot_wider(
+    names_from= name,
+    values_from= mean_tmax
+  ) |>
+  knitr::kable(digits=2)
+
+```
+
+```{r}
+weather_df |>
+  group_by(name, month) |>
+  summarise (
+    mean_tmax= mean(tmax, na.rm= TRUE), 
+  ) |>
+  ggplot(aes(x=month, y=mean_tmax, color=name))+
+  geom_point()+
+  geom_line ()
+```
+```{r}
+weather_df |>
+  group_by(name)|>
+  mutate(center_tmax=tmax - mean(tmax, na.rm=TRUE)) |>
+ggplot(aes(x=date, y=center_tmax, color=name)) +
+geom_point()
+```
+Sometimes its helpful to center your variables and compute avg tmax and subtract it from the center. Mutate knows when you add in the group by computes the group specific mean and what not.
+
+What about "window functions". Try to rank things
+```{r}
+weather_df |>
+  group_by (name, month) |>
+  mutate(temp_rank= min_rank(desc(tmax))) |>
+  filter(temp_rank <2)
+```
+Tmax 4.4 and its rank is 14 ranks from smallest to largest.
+
+Lead and Lag. Order of the dataset matters. 
+
+```{r}
+weather_df |> 
+  group_by (name) |> 
+  mutate(
+    lagged_tmax= log(tmax)
+  )
+```
+Taking column, move it over, shift down by 1. Figure out cumulative effects. If the things are out of order, the way the lag works all its going to do take what column over and shift down by 1. Need to use group_by. 
+
+```{r}
+weather_df |> 
+  group_by (name) |> 
+  mutate(
+    lagged_tmax= log(tmax, 3), 
+    lead_tmax= lead (tmax)
+  )
+```
+Lag by tmax 
+
+```{r}
+weather_df |> 
+  group_by (name) |> 
+  mutate(
+    lagged_tmax= log(tmax), 
+    temp_change= lead (tmax- lagged_tmax)
+  )
+```
+```{r}
+weather_df |> 
+  group_by (name) |> 
+  mutate(
+    temp_change= tmax- lag(tmax)
+  )|>
+  summarize (
+    mean_temp_change= mean(temp_change, na.rm=TRUE), 
+    sd_temp_change= sd(temp_change, na.rm= TRUE)
+  )
+```
+## Revisit 
+import, clean, tidy, ect. the pulse data, and compute mean and median BDI score at each visit
+
+```{r}
+library(haven)
+pulse_df = read_sas("/Users/natalieknitowski/Desktop/Data Science I/Viz_and_Eda/03_eda_files/data_import_examples/public_pulse_data.sas7bdat")
+
+```
+
+

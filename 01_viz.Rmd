@@ -1,0 +1,14 @@
+---
+title: "Data Visualization"
+output: html_document
+date: "2026-10-01"
+#new edits
+---
+
+```{r setup, include=FALSE}
+library(ggridges)
+
+library(p8105.datasets)
+data("weather_df")
+```
+

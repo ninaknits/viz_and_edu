@@ -1,0 +1,94 @@
+---
+title: "Data Visualization"
+subtitle: "Part II"
+output: html_document
+date: "2026-10-01"
+#new edits
+---
+
+```{r setup}
+library(tidyverse)
+library(patchwork)
+
+library(p8105.datasets)
+data("weather_df")
+```
+
+```{r}
+weather_df
+```
+
+## Remember this plot... ?
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color= name)) +
+  geom_point(alpha = 0.5)
+```
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+#Labels 
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color= name)) +
+  geom_point(alpha = 0.5)
+labs (
+  title = "temperature plot", 
+  x= "minimum daily temperature (C)",
+  y= "maximum daily temperature (C)",
+  caption = "Data from rnoaa package; temperatures in 2017."
+)
+```
+
+#Scales
+
+Start with the same plot
+
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    color = "Location",
+    caption = "Data from the rnoaa package") + 
+  scale_x_continuous(
+    breaks = c(-15, 0, 15), 
+    labels = c("-15º C", "0", "15"))
+```
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    color = "Location",
+    caption = "Data from the rnoaa package") + 
+scale_color_hue(
+  name = "Location", 
+  h = c(100, 300))
+```
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    color = "Location",
+    caption = "Data from the rnoaa package") + 
+viridis::scale_color_viridis(
+  name = "Location", 
+  discrete= TRUE
+)
+```
